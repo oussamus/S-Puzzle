@@ -1,4 +1,5 @@
 import copy
+import random
 from collections import deque
 open_list = deque()
 closed_list = list()
@@ -11,24 +12,86 @@ class Tree(object):
         self.children = list()
         self.depth = None
 
+def itterativeDeepening():
+    global open_list
+    global closed_list
+    depth_level =1
+    done = None
+    loop_again = True
+
+    while loop_again:
+
+        local_open_list = copy.deepcopy(open_list)
+        closed_list.clear()
+
+        loop_again = False
+        if depth_level == 8:
+            print("t")
+
+        while len(local_open_list) > 0 :
+
+            current_state = local_open_list.pop()
+            closed_list.append(current_state)
+
+            if current_state.Data == [[1, 2, 3], [4, 5, 6], [7, 8, 9]]:
+                print("F")
+            # checking if the current state is a final state
+            if current_state.isFinal():
+                done = current_state
+                break
+
+            if current_state.Data == [[1,2,3],[4,5,6],[8,7,9]]:
+                print("test")
+
+
+            #if the depth of the node > the maximum allowed depth for this iteration, check the next state in the open list
+            if current_state.depth > depth_level:
+                loop_again = True
+                continue
+            if current_state.Data == [[1,2,3],[4,5,6],[8,7,9]]:
+                print("test")
+
+
+
+            if depth_level == 8 and len(local_open_list) < 14:
+                print(local_open_list)
+
+            #generating all the children of the state
+            children = generateAllChildren(current_state)
+
+            #setting the children attibute of the node = to the generated list of children
+            current_state.children = children
+
+            #adding the list of children to the open list
+            local_open_list.extend(children)
+
+        if done:
+          return done
+
+        depth_level +=1
+        print(depth_level)
+    return None
+
+
 
 def depthFirst():
     '''Not Complete'''
-    current_node = Tree
+    #current_node = Tree
     global open_list
+    global closed_list
     # generate the child state
     #child_state = generateChild(current_node.data)
 
     counter =0
     while len(open_list) > 0:
 
-        if counter == 4:
+        if counter == 100:
             counter =0
-            print(current_state.log)
+            print(len(open_list))
         counter += 1
         current_state = open_list.pop()
         closed_list.append(current_state)
-        
+
         #print(len(open_list))
         #if current state is not null (i.e if a child exists
         if current_state:
@@ -70,7 +133,9 @@ def depthFirst():
 def difference(child_list, open_list, closed_list):
     returning_list = list()
     for state in child_list:
-        if state in open_list or state in closed_list:
+        if state.Data == [[1,2,3],[4,5,6],[8,7,9]]:
+            print(state.log)
+        if state in open_list or state in closed_list or state in returning_list:
             continue
         else:
             returning_list.append(state)
@@ -80,7 +145,8 @@ def difference(child_list, open_list, closed_list):
 
 def generateAllChildren(state):
     returning = list()
-
+    global open_list
+    global closed_list
     # iterating through all the possible moveUp actions
     for i in list(range(0, rows)):
         for j in list(range(0, column)):
@@ -118,6 +184,7 @@ def generateAllChildren(state):
             returning.append(out)
 
     filtered_list = difference(returning,open_list,closed_list)
+    random.shuffle(filtered_list)
     return filtered_list
 
 def generateChild(state):
@@ -174,12 +241,12 @@ def generateChild(state):
 class State(object):
     '''State that represents the puzzle. It contains the tuple/array (array for now) and a list of changes applied to it'''
 
-    def __init__(self, Data, log ):
+    def __init__(self, Data, log,parent,children, depth ):
         self.Data = Data
         self.log = log
-        self.parent = None
-        self.children = list()
-        self.depth = None
+        self.parent = parent
+        self.children = children
+        self.depth = depth
 
     def addLog(self, log):
         self.log.append(log)
@@ -189,7 +256,7 @@ class State(object):
 
     def moveLeft(self,row, col):
         if (col % column) > 0:
-            new_state = State(copy.deepcopy(self.Data),copy.deepcopy(self.log) ) #making a deep copy of the state
+            new_state = State(copy.deepcopy(self.Data),copy.deepcopy(self.log),self, list(), copy.deepcopy(self.depth +1) ) #making a deep copy of the state
             possibleMove = new_state.Data
             temp = possibleMove[row][col -1]  # for swapping positions
             possibleMove[row][col - 1] = possibleMove[row][col]
@@ -202,7 +269,7 @@ class State(object):
 
     def moveRight(self, row, col):
         if (col % column) < (column - 1):
-            new_state = State(copy.deepcopy(self.Data), copy.deepcopy(self.log))
+            new_state = State(copy.deepcopy(self.Data),copy.deepcopy(self.log),self, list(), copy.deepcopy(self.depth +1) )
             possibleMove = new_state.Data
             temp = possibleMove[row][col + 1]  # for swapping positions
             possibleMove[row][col + 1] = possibleMove[row][col]
@@ -214,7 +281,7 @@ class State(object):
 
     def moveDown(self, row, col):
         if row < rows -1:
-            new_state = State(copy.deepcopy(self.Data), copy.deepcopy(self.log))
+            new_state = State(copy.deepcopy(self.Data),copy.deepcopy(self.log),self, list(), copy.deepcopy(self.depth +1) )
             possibleMove = new_state.Data
             temp = possibleMove[row +1][col]  # for swapping positions
             possibleMove[row +1][col] = possibleMove[row][col]
@@ -226,7 +293,7 @@ class State(object):
 
     def moveUp(self, row, col):
         if row > 0 and row <= rows :
-            new_state = State(copy.deepcopy(self.Data), copy.deepcopy(self.log))
+            new_state = State(copy.deepcopy(self.Data),copy.deepcopy(self.log),self, list(), copy.deepcopy(self.depth +1) )
             possibleMove = new_state.Data
             temp = possibleMove[row -1][col]  # for swapping positions
             possibleMove[row -1][col] = possibleMove[row][col]
@@ -242,6 +309,11 @@ class State(object):
             return True
         else:
             return False
+    def __str__(self):
+        out = ""
+        for row in self.Data:
+            out = out + str(row) +"\n"
+        return out
 
     def isFinal(self):
         global goal
@@ -256,13 +328,13 @@ goal = [[1,2,3],[4,5,6],[7,8,9]]
 
 if __name__ == '__main__':
 
-    init = [[1, 2, 3], [4, 5, 6], [8, 7, 9]]
+    init = [[1, 2, 3], [9, 8, 6], [5, 7, 4]]
 
     open_list = deque()
     closed_list = list()
 
     #starting intial state
-    s = State(init,list())
+    s = State(init,list(),None, list(),1)
     s.depth = 1
 
     #creating tree root
@@ -273,5 +345,8 @@ if __name__ == '__main__':
 
     #adding the inital state to the open list
     open_list.append(s)
-    depthFirst()
+    #depthFirst()
+    ret = itterativeDeepening()
+    print(ret.log)
+
 
