@@ -18,43 +18,103 @@ def itterativeDeepening():
     depth_level =1
     done = None
     loop_again = True
+    original_open_list = copy.deepcopy(open_list)
 
     while loop_again:
 
-        local_open_list = copy.deepcopy(open_list)
+        open_list = copy.deepcopy(original_open_list)
         closed_list.clear()
 
         loop_again = False
         if depth_level == 8:
             print("t")
 
-        while len(local_open_list) > 0 :
+        while len(open_list) > 0 :
 
-            current_state = local_open_list.pop()
-            closed_list.append(current_state)
+            current_state = open_list.pop()
 
-            if current_state.Data == [[1, 2, 3], [4, 5, 6], [7, 8, 9]]:
-                print("F")
-            # checking if the current state is a final state
-            if current_state.isFinal():
-                done = current_state
-                break
 
-            if current_state.Data == [[1,2,3],[4,5,6],[8,7,9]]:
-                print("test")
+            if depth_level == 6 and current_state.Data == [[1, 2, 3], [5, 8, 6], [9, 7, 4]]:
+                print("At " + str(depth_level) + " found : ")
+                current_state.printData()
+                print("node depth : " + str(current_state.depth))
+                print("\n")
 
+            if depth_level == 6 and current_state.Data == [[1, 2, 3], [5, 8, 6], [7, 9, 4]]:
+                print("At " + str(depth_level) + " found : ")
+                current_state.printData()
+                print("node depth : " + str(current_state.depth))
+                print("\n")
+
+            if depth_level == 6 and current_state.Data == [[1, 2, 3], [5, 8, 6], [7, 4, 9]]:
+                print("At " + str(depth_level) + " found : ")
+                current_state.printData()
+                print("node depth : " + str(current_state.depth))
+                print("\n")
+
+            if depth_level == 6 and current_state.Data == [[1, 2, 3], [5, 4, 6], [7, 8, 9]]:
+                print("At " + str(depth_level) + " found : ")
+                current_state.printData()
+                print("node depth : " + str(current_state.depth))
+                print("\n")
+
+            if depth_level == 7 and current_state.Data == [[1, 2, 3], [5, 8, 6], [9, 7, 4]]:
+                print("At " + str(depth_level) + " found : ")
+                current_state.printData()
+                print("node depth : " + str(current_state.depth))
+                print("\n")
+
+            if depth_level == 7 and current_state.Data == [[1, 2, 3], [5, 8, 6], [7, 9, 4]]:
+                print("At " + str(depth_level) + " found : ")
+                current_state.printData()
+                print("node depth : " + str(current_state.depth))
+                print("\n")
+
+            if depth_level == 7 and current_state.Data == [[1, 2, 3], [5, 8, 6], [7, 4, 9]]:
+                print("At " + str(depth_level) + " found : ")
+                current_state.printData()
+                print("node depth : " + str(current_state.depth))
+                print("\n")
+
+            if depth_level == 7 and current_state.Data == [[1, 2, 3], [5, 4, 6], [7, 8, 9]]:
+                print("At " + str(depth_level) + " found : ")
+                current_state.printData()
+                print("node depth : " + str(current_state.depth))
+                print("\n")
+            if depth_level == 8 and current_state.Data == [[1, 2, 3], [5, 8, 6], [9, 7, 4]]:
+                print("At " + str(depth_level) + " found : ")
+                current_state.printData()
+                print("node depth : " + str(current_state.depth))
+                print("\n")
+            if depth_level == 8 and current_state.Data == [[1, 2, 3], [5, 8, 6], [7, 9, 4]]:
+                print("At " + str(depth_level) + " found : ")
+                current_state.printData()
+                print("node depth : " + str(current_state.depth))
+                print("\n")
+            if depth_level == 8 and current_state.Data == [[1, 2, 3], [5, 8, 6], [7, 4, 9]]:
+                print("At " + str(depth_level) + " found : ")
+                current_state.printData()
+                print("node depth : " + str(current_state.depth))
+                print("\n")
+            if depth_level == 8 and current_state.Data == [[1, 2, 3], [5, 4, 6], [7, 8, 9]]:
+                print("At " + str(depth_level) + " found : ")
+                current_state.printData()
+                print("node depth : " + str(current_state.depth))
+                print("\n")
 
             #if the depth of the node > the maximum allowed depth for this iteration, check the next state in the open list
             if current_state.depth > depth_level:
                 loop_again = True
                 continue
-            if current_state.Data == [[1,2,3],[4,5,6],[8,7,9]]:
-                print("test")
 
+            #this goes down
+            closed_list.append(current_state)
 
+            # checking if the current state is a final state
+            if current_state.isFinal():
+                done = current_state
+                break
 
-            if depth_level == 8 and len(local_open_list) < 14:
-                print(local_open_list)
 
             #generating all the children of the state
             children = generateAllChildren(current_state)
@@ -63,13 +123,13 @@ def itterativeDeepening():
             current_state.children = children
 
             #adding the list of children to the open list
-            local_open_list.extend(children)
+            open_list.extend(children)
 
         if done:
           return done
 
         depth_level +=1
-        print(depth_level)
+        print("depth level: " + str(depth_level))
     return None
 
 
@@ -98,8 +158,7 @@ def depthFirst():
 
             #check if it is the final state
             if current_state.isFinal():
-                print(current_state)
-                break
+                return current_state
             #if not, creat anew tree node, fit the child state into it, set all the variables for the node, and set current node to that node
             else:
 
@@ -133,8 +192,22 @@ def depthFirst():
 def difference(child_list, open_list, closed_list):
     returning_list = list()
     for state in child_list:
-        if state.Data == [[1,2,3],[4,5,6],[8,7,9]]:
-            print(state.log)
+        #if state.Data == [[1,2,3],[4,5,6],[8,7,9]]:
+           # print(state.log)
+
+        '''
+        if state.Data == [[1, 2, 3], [5, 8, 6], [9, 7, 4]]:
+            print()
+
+        if state.Data == [[1, 2, 3], [5, 8, 6], [7, 9, 4]]:
+            print()
+
+        if state.Data == [[1, 2, 3], [5, 8, 6], [7, 4, 9]]:
+            print()
+
+        if state.Data == [[1, 2, 3], [5, 4, 6], [7, 8, 9]]:
+            print()
+        '''
         if state in open_list or state in closed_list or state in returning_list:
             continue
         else:
@@ -184,7 +257,7 @@ def generateAllChildren(state):
             returning.append(out)
 
     filtered_list = difference(returning,open_list,closed_list)
-    random.shuffle(filtered_list)
+    #random.shuffle(filtered_list)
     return filtered_list
 
 def generateChild(state):
@@ -321,14 +394,34 @@ class State(object):
             return True
         else:
             return False
+
+def printHistory(state):
+    nodes = list()
+
+    #adding current node to the list
+    nodes.append(state)
+
+    #getting the parent of the node
+    parent = state.parent
+
+    #adding all the ancestors of the state to the list
+    while parent:
+        nodes.append(parent)
+        parent = parent.parent
+
+    #printing all the ancestors
+    for state in list(reversed(nodes)):
+        print("\n")
+        state.printData()
+
 column =3
 rows = 3
 goal = [[1,2,3],[4,5,6],[7,8,9]]
-
+init = [[1,2,3], [9,8,6],[5,7,4]]
 
 if __name__ == '__main__':
 
-    init = [[1, 2, 3], [9, 8, 6], [5, 7, 4]]
+
 
     open_list = deque()
     closed_list = list()
@@ -347,6 +440,6 @@ if __name__ == '__main__':
     open_list.append(s)
     #depthFirst()
     ret = itterativeDeepening()
-    print(ret.log)
+    printHistory(ret)
 
 
