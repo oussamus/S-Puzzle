@@ -1,16 +1,8 @@
 import copy
 import random
 from collections import deque
-open_list = deque()
-closed_list = list()
-
-class Tree(object):
-    '''Tree that will contain a state in its data'''
-    def __init__(self):
-        self.data = None
-        self.parent = None
-        self.children = list()
-        self.depth = None
+from timeit import default_timer as timer
+from multiprocessing import Process
 
 def itterativeDeepening():
     global open_list
@@ -20,87 +12,17 @@ def itterativeDeepening():
     loop_again = True
     original_open_list = copy.deepcopy(open_list)
 
+
     while loop_again:
 
         open_list = copy.deepcopy(original_open_list)
         closed_list.clear()
 
         loop_again = False
-        if depth_level == 8:
-            print("t")
 
         while len(open_list) > 0 :
 
             current_state = open_list.pop()
-
-
-            if depth_level == 6 and current_state.Data == [[1, 2, 3], [5, 8, 6], [9, 7, 4]]:
-                print("At " + str(depth_level) + " found : ")
-                current_state.printData()
-                print("node depth : " + str(current_state.depth))
-                print("\n")
-
-            if depth_level == 6 and current_state.Data == [[1, 2, 3], [5, 8, 6], [7, 9, 4]]:
-                print("At " + str(depth_level) + " found : ")
-                current_state.printData()
-                print("node depth : " + str(current_state.depth))
-                print("\n")
-
-            if depth_level == 6 and current_state.Data == [[1, 2, 3], [5, 8, 6], [7, 4, 9]]:
-                print("At " + str(depth_level) + " found : ")
-                current_state.printData()
-                print("node depth : " + str(current_state.depth))
-                print("\n")
-
-            if depth_level == 6 and current_state.Data == [[1, 2, 3], [5, 4, 6], [7, 8, 9]]:
-                print("At " + str(depth_level) + " found : ")
-                current_state.printData()
-                print("node depth : " + str(current_state.depth))
-                print("\n")
-
-            if depth_level == 7 and current_state.Data == [[1, 2, 3], [5, 8, 6], [9, 7, 4]]:
-                print("At " + str(depth_level) + " found : ")
-                current_state.printData()
-                print("node depth : " + str(current_state.depth))
-                print("\n")
-
-            if depth_level == 7 and current_state.Data == [[1, 2, 3], [5, 8, 6], [7, 9, 4]]:
-                print("At " + str(depth_level) + " found : ")
-                current_state.printData()
-                print("node depth : " + str(current_state.depth))
-                print("\n")
-
-            if depth_level == 7 and current_state.Data == [[1, 2, 3], [5, 8, 6], [7, 4, 9]]:
-                print("At " + str(depth_level) + " found : ")
-                current_state.printData()
-                print("node depth : " + str(current_state.depth))
-                print("\n")
-
-            if depth_level == 7 and current_state.Data == [[1, 2, 3], [5, 4, 6], [7, 8, 9]]:
-                print("At " + str(depth_level) + " found : ")
-                current_state.printData()
-                print("node depth : " + str(current_state.depth))
-                print("\n")
-            if depth_level == 8 and current_state.Data == [[1, 2, 3], [5, 8, 6], [9, 7, 4]]:
-                print("At " + str(depth_level) + " found : ")
-                current_state.printData()
-                print("node depth : " + str(current_state.depth))
-                print("\n")
-            if depth_level == 8 and current_state.Data == [[1, 2, 3], [5, 8, 6], [7, 9, 4]]:
-                print("At " + str(depth_level) + " found : ")
-                current_state.printData()
-                print("node depth : " + str(current_state.depth))
-                print("\n")
-            if depth_level == 8 and current_state.Data == [[1, 2, 3], [5, 8, 6], [7, 4, 9]]:
-                print("At " + str(depth_level) + " found : ")
-                current_state.printData()
-                print("node depth : " + str(current_state.depth))
-                print("\n")
-            if depth_level == 8 and current_state.Data == [[1, 2, 3], [5, 4, 6], [7, 8, 9]]:
-                print("At " + str(depth_level) + " found : ")
-                current_state.printData()
-                print("node depth : " + str(current_state.depth))
-                print("\n")
 
             #if the depth of the node > the maximum allowed depth for this iteration, check the next state in the open list
             if current_state.depth > depth_level:
@@ -114,7 +36,6 @@ def itterativeDeepening():
             if current_state.isFinal():
                 done = current_state
                 break
-
 
             #generating all the children of the state
             children = generateAllChildren(current_state)
@@ -147,10 +68,13 @@ def depthFirst():
 
         if counter == 100:
             counter =0
-            print(len(open_list))
+            print("open list: " + str(len(open_list)) + "\nclose list: "+ str(len(closed_list)))
         counter += 1
         current_state = open_list.pop()
-        closed_list.append(current_state)
+        #closed_list.append(current_state)
+
+        if is_cycle(current_state):
+            continue
 
         #print(len(open_list))
         #if current state is not null (i.e if a child exists
@@ -159,28 +83,12 @@ def depthFirst():
             #check if it is the final state
             if current_state.isFinal():
                 return current_state
-            #if not, creat anew tree node, fit the child state into it, set all the variables for the node, and set current node to that node
+            #if not, creat anew  tree node, fit the child state into it, set all the variables for the node, and set current node to that node
             else:
 
                 children = generateAllChildren(current_state)
                 open_list.extend(children)
-                #open_list = children + open_list
-                '''
-                temp_node = Tree()
-                #setting parameters
-                temp_node.depth = current_node.depth +1
-                temp_node.parent = current_node
-                #inserting the state in the open queue
-                open_list.append(current_state)
-                #fitting the child state
-                temp_node.data = generateChild(open_list.pop())
 
-                #adding the child node to the children of the current node
-                current_node.children.append(temp_node)
-
-                #setting the current node = to the child node
-                current_node = temp_node
-                '''
         #if there are no child states in the current state
         else:
             '''
@@ -192,23 +100,7 @@ def depthFirst():
 def difference(child_list, open_list, closed_list):
     returning_list = list()
     for state in child_list:
-        #if state.Data == [[1,2,3],[4,5,6],[8,7,9]]:
-           # print(state.log)
-
-        '''
-        if state.Data == [[1, 2, 3], [5, 8, 6], [9, 7, 4]]:
-            print()
-
-        if state.Data == [[1, 2, 3], [5, 8, 6], [7, 9, 4]]:
-            print()
-
-        if state.Data == [[1, 2, 3], [5, 8, 6], [7, 4, 9]]:
-            print()
-
-        if state.Data == [[1, 2, 3], [5, 4, 6], [7, 8, 9]]:
-            print()
-        '''
-        if state in open_list or state in closed_list or state in returning_list:
+        if state in open_list or state in returning_list:
             continue
         else:
             returning_list.append(state)
@@ -260,56 +152,6 @@ def generateAllChildren(state):
     #random.shuffle(filtered_list)
     return filtered_list
 
-def generateChild(state):
-    '''takes a state as a parameter, tries all possible actions, and returns a child state or None when there are no more child states '''
-    #next_state = open_list.pop(0)
-
-    #iterating through all the possible moveUp actions
-    for i in list(range(0,rows)):
-        for j in list(range(0, column)):
-            out = state.moveUp(i, j)
-
-            if not out: continue
-
-            if out in open_list or out in closed_list:
-                continue
-            else:
-                return out
-
-    #iterating through all the possible moveDown actions
-    for i in list(range(0,rows)):
-        for j in list(range(0, column)):
-            out = state.moveDown(i, j)
-
-            if not out: continue
-
-            if out in open_list or out in closed_list:
-                continue
-            else:
-                return out
-    #iterating through all the possible moveRight actions
-    for i in list(range(0,rows)):
-        for j in list(range(0, column)):
-            out = state.moveRight(i, j)
-
-            if not out: continue
-
-            if out in open_list or out in closed_list:
-                continue
-            else:
-                return out
-    #iterating through all the possible moveLeft actions
-    for i in list(range(0,rows)):
-        for j in list(range(0, column)):
-            out = state.moveLeft(i, j)
-
-            if not out: continue
-
-            if out in open_list or out in closed_list:
-                continue
-            else:
-                return out
-    return None
 
 class State(object):
     '''State that represents the puzzle. It contains the tuple/array (array for now) and a list of changes applied to it'''
@@ -324,8 +166,11 @@ class State(object):
     def addLog(self, log):
         self.log.append(log)
     def printData(self):
+        out = ""
         for row in self.Data:
-            print(row)
+            out += "\n"+ str(row)
+        out +=  "\nDepth level: " + str(self.depth)
+        print(out)
 
     def moveLeft(self,row, col):
         if (col % column) > 0:
@@ -414,10 +259,68 @@ def printHistory(state):
         print("\n")
         state.printData()
 
+def is_cycle(state):
+    '''Checks if the state has the same representation in its line of parents'''
+    ancestor = state.parent
+
+    while ancestor:
+        if state == ancestor:
+            return True
+        ancestor = ancestor.parent
+    return False
+
+def iterative_deepening_search():
+    start_time = timer()
+    depth = 1
+    global open_list
+    original_open_list = copy.deepcopy(open_list)
+
+    while depth < 100:
+        print("depth level: " + str(depth) + "time: " + str(timer() - start_time))
+        open_list = copy.deepcopy(original_open_list)
+        result = depth_limited_search(depth)
+        if result:
+            return result
+        depth +=1
+    return None
+
+def depth_limited_search(n):
+    global search_path
+    global open_list
+    result =None
+    while len(open_list) >0:
+        current_state = open_list.pop()
+        search_path.append(current_state)
+        if current_state.isFinal():
+            return current_state
+        if current_state.depth >n:
+            result = None
+        else:
+            if not is_cycle(current_state):
+                children = generateAllChildren(current_state)
+                open_list.extend(children)
+    return result
+
+def print_search_path():
+    sPthat = search_path
+
+    for state in sPthat:
+        state.printData()
+        print("\n")
+
+
 column =3
 rows = 3
 goal = [[1,2,3],[4,5,6],[7,8,9]]
-init = [[1,2,3], [9,8,6],[5,7,4]]
+init = [[1,3,2], [5,8,6],[9,7,4]]
+search_path = list()
+
+#example inputs
+#[[2,3,5], [1,8,6],[9,7,4]]
+#[[1,3,2], [5,8,6],[9,7,4]]
+#[[2,3,5], [1,8,6],[9,7,4]]
+
+#init = [[1,3,2],[4,5,6],[7,8,9]]
 
 if __name__ == '__main__':
 
@@ -430,16 +333,14 @@ if __name__ == '__main__':
     s = State(init,list(),None, list(),1)
     s.depth = 1
 
-    #creating tree root
-    #root = Tree()
-
-    #loading the initial state into the root of the tree
-    #root.data = s
-
     #adding the inital state to the open list
     open_list.append(s)
+
     #depthFirst()
-    ret = itterativeDeepening()
-    printHistory(ret)
+    ret = depthFirst()
+    end = timer()
+    print(ret)
+    #print_search_path()
+    #printHistory(ret)
 
 
