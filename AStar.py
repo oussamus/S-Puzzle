@@ -25,6 +25,7 @@ class Node:
         
         children = []
         values_to_move = []
+        #Note: in the newerfunction we're using list of integers not strings.
         goal = [['1', '2', '3'], ['4', '5', '6'], [ '7', '8','9']]
         puz = copy.deepcopy(self.data)
         for i in range(3):
@@ -36,6 +37,20 @@ class Node:
         for i in range(len(children)):
             print("children ", children[i].data)
         x = input()
+
+    def generate_possible_children1(self):
+
+        # list_children = self.find_children()
+        global goal
+        children = []
+        values_to_move = []
+        puz = copy.deepcopy(self.data)
+        for i in range(row):
+            for j in range(col):
+                if (puz[i][j] != goal[i][j]):
+                    values_to_move.append(puz[i][j])
+                    self.possible_moves(children, puz, i, j)
+        return children
         
 
     def possible_moves(self, children, puz, col, row):
@@ -53,7 +68,7 @@ class Node:
             temp = puz_[col][row]
             puz_[col][row] = puz_[col][row + 1]
             puz_[col][row + 1] = temp 
-            print("Right ",puz_)
+            #print("Right ",puz_)
             child_node = Node(puz_, self.level + 1, 0)
             children.append(child_node)
 
@@ -66,7 +81,7 @@ class Node:
             temp = puz_[col][row]
             puz_[col][row] = puz_[col][row - 1]
             puz_[col][row - 1] = temp 
-            print("Left ",puz_)
+            #print("Left ",puz_)
             child_node = Node(puz_, self.level+1, 0)
             children.append(child_node)
         
@@ -78,7 +93,7 @@ class Node:
             temp = puz_[col][row]
             puz_[col][row] = puz_[col - 1][row]
             puz_[col - 1][row] = temp 
-            print("Up ",puz_)
+            #print("Up ",puz_)
             child_node = Node(puz_, self.level + 1, 0)
             children.append(child_node)
         
@@ -89,7 +104,7 @@ class Node:
             temp = puz_[col][row]
             puz_[col][row] = puz_[col + 1][row]
             puz_[col + 1][row] = temp 
-            print("Down ",puz_)
+            #print("Down ",puz_)
             child_node = Node(puz_, self.level+1, 0)
             children.append(child_node)
         
@@ -155,9 +170,10 @@ class Puzzle:
         
 
     def process(self):
-        start = [['1', '2', '3'], ['4', '5', '6'], [ '9', '8', '7']]
-        goal = [['1', '2', '3'], ['4', '5', '6'], [ '7', '8','9']]
-        start = Node(start,0,0)
+        global init
+        global goal
+
+        start = Node(init,0,0)
         start.fval = self.f(start,goal)
         """ Put the start node in the open list"""
         self.open.append(start)
@@ -169,25 +185,37 @@ class Puzzle:
                     print(j,end=" ")
                 print("")
             """ If the difference between current and goal node is 0 we have reached the goal node"""
-            if(self.h(cur.data,goal) == 0):
+            if self.h(cur.data,goal) == 0:
                 break
-            for i in cur.generate_child():
+
+            for i in cur.generate_possible_children1():
                 i.fval = self.f(i,goal)
+                if i.fval == 0: return i
                 self.open.append(i)
             self.closed.append(cur)
             self.open.remove(self.open[0])
 
             """ sort the open list based on f value """
             self.open.sort(key = lambda x:x.fval)
-            temp = self.open[0]
-            self.open.clear()
-            self.open.append(temp)
+            #I don't think we should be clearing the open list for A*
+            #temp = self.open[0]
+            #self.open.clear()
+            #self.open.append(temp)
             #print("len(self.open) ",len(self.open)  )
             #for i in range(len(self.open)):
              #   print("self.open[",i,"].fval ",self.open[i].fval)
               #  print(self.open[i].data)
             #x = input()
 
+#init = [['1', '2', '3'], ['9', '5', '6'], [ '4', '8', '7']]
+#goal = [['1', '2', '3'], ['4', '5', '6'], [ '7', '8','9']]
+init = [[1,2,3],[9,5,6],[4,8,7]]
+goal = [[1,2,3],[4,5,6],[7,8,9]]
+col =3
+row = 3
+
+#chnages:
+#instead of using range(3)
 
 puz = Puzzle(3)
 puz.process()
