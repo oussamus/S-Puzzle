@@ -1,3 +1,4 @@
+import copy
 class Node:
     def __init__(self,data,level,fval):
         """ Initialize the node with the data, level of the node and the calculated fvalue """
@@ -25,70 +26,72 @@ class Node:
         children = []
         values_to_move = []
         goal = [['1', '2', '3'], ['4', '5', '6'], [ '7', '8','9']]
-        puz = self.data
+        puz = copy.deepcopy(self.data)
         for i in range(3):
             for j in range(3):
                 if(puz[i][j] != goal[i][j]):
-                    
-                    #print("puz ", puz)
                     values_to_move.append(puz[i][j])
                     self.possible_moves(children, puz, i, j)
         
-        #for i in range(len(children)):
-        #  print("children ", children[i].data)
-        #x = input()
+        for i in range(len(children)):
+            print("children ", children[i].data)
+        x = input()
         
 
     def possible_moves(self, children, puz, col, row):
         self.moveRight(children, puz, col, row)
-        #self.moveLeft(children, col, row)
-        #self.moveUp(children, col, row)
-        #self.moveDown(children, col, row)
+        self.moveLeft(children, puz, col, row)
+        self.moveUp(children, puz, col, row)
+        self.moveDown(children, puz, col, row)
         
 
         
 
     def moveRight( self, children, puz, col, row):
         if (row <= 1):
-            temp = puz[col][row]
-            puz[col][row] = puz[col][row + 1]
-            puz[col][row + 1] = temp 
-            #print("Right ",puz)
-            child_node = Node(puz, self.level + 1, 0)
+            puz_ = copy.deepcopy(puz)
+            temp = puz_[col][row]
+            puz_[col][row] = puz_[col][row + 1]
+            puz_[col][row + 1] = temp 
+            print("Right ",puz_)
+            child_node = Node(puz_, self.level + 1, 0)
+            children.append(child_node)
+
+
+        
+
+    def moveLeft( self, children, puz, col, row):
+        if (row > 0):
+            puz_ = copy.deepcopy(puz)
+            temp = puz_[col][row]
+            puz_[col][row] = puz_[col][row - 1]
+            puz_[col][row - 1] = temp 
+            print("Left ",puz_)
+            child_node = Node(puz_, self.level+1, 0)
+            children.append(child_node)
+        
+        
+
+    def moveUp( self, children, puz, col, row):
+        if (col > 0):
+            puz_ = copy.deepcopy(puz)
+            temp = puz_[col][row]
+            puz_[col][row] = puz_[col - 1][row]
+            puz_[col - 1][row] = temp 
+            print("Up ",puz_)
+            child_node = Node(puz_, self.level + 1, 0)
             children.append(child_node)
         
 
-    def moveLeft( self, children, col, row):
-        puz = self.data
-        if (row > 0):
-            temp = puz[col][row]
-            puz[col][row] = puz[col][row - 1]
-            puz[col][row - 1] = temp 
-            print("Left ",puz)
-        child_node = Node(puz, self.level+1, 0)
-        children.append(child_node)
-        
-
-    def moveUp( self, children, col, row):
-        puz = self.data
-        if (col > 0):
-            temp = puz[col][row]
-            puz[col][row] = puz[col - 1][row]
-            puz[col - 1][row] = temp 
-            print("Up ",puz)
-        child_node = Node(puz, self.level+1, 0)
-        children.append(child_node)
-        
-
-    def moveDown( self, children, col, row):
-        puz = self.data
+    def moveDown( self, children, puz, col, row):
         if (col <= 1):
-            temp = puz[col][row]
-            puz[col][row] = puz[col + 1][row]
-            puz[col + 1][row] = temp 
-            print("Down ",puz)
-        child_node = Node(puz, self.level+1, 0)
-        children.append(child_node)
+            puz_ = copy.deepcopy(puz)
+            temp = puz_[col][row]
+            puz_[col][row] = puz_[col + 1][row]
+            puz_[col + 1][row] = temp 
+            print("Down ",puz_)
+            child_node = Node(puz_, self.level+1, 0)
+            children.append(child_node)
         
 
     def shuffle(self,puz,x1,y1,x2,y2):
