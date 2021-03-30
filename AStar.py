@@ -138,7 +138,13 @@ class Node:
             for j in range(0,len(self.data)):
                 if puz[i][j] == x:
                     return i,j
-                   
+
+def find(puzzle, rows, cols, target):
+    for i in range(rows):
+        for j in range(cols):
+            if puzzle[i][j] == target:
+                return (i,j)
+    return None
 
 class Puzzle:
     def __init__(self,size):
@@ -152,7 +158,7 @@ class Puzzle:
     def f(self, start, goal):
         """ Heuristic Function to calculate hueristic value f(x) = h(x) + g(x) """
         
-        returnVal = self.h(start.data, goal)
+        returnVal = self.h(start.data)
         #print("level ", start.level,"returnVal ", returnVal )
         returnVal += start.level
         return returnVal
@@ -167,6 +173,16 @@ class Puzzle:
                     temp += 1
         #print("temp ", temp)
         return temp
+    def h2(self,start):
+        global row, col, goal
+        distance  =0
+        for i in range(self.n):
+            for j in range(self.n):
+                if start[i][j] != goal[i][j]:
+                    (real_row,real_col) = find(goal,row,col,start[i][j])
+                    distance += abs(real_col - j) + abs(real_row -i)
+        return distance
+
         
 
     def process(self):
@@ -218,4 +234,5 @@ row = 3
 #instead of using range(3)
 
 puz = Puzzle(3)
+
 puz.process()
