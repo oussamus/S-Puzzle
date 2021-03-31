@@ -63,7 +63,7 @@ def depthFirst():
     global closed_list
     # generate the child state
     #child_state = generateChild(current_node.data)
-
+    stoptime = time.time() + 5
     counter =0
     while len(open_list) > 0:
 
@@ -81,6 +81,9 @@ def depthFirst():
         #if current state is not null (i.e if a child exists
         if current_state:
 
+            now = time.time()
+            if now > stoptime:
+                return current_state
             #check if it is the final state
             if current_state.isFinal():
                 return current_state
@@ -290,17 +293,17 @@ def depth_limited_search(n):
     global search_path
     global open_list
     result =None
-    stoptime = time.time() + 60
+    stoptime = time.time() + 60 * 6
     while len(open_list) >0:
+        now = time.time()
         current_state = open_list.pop()
         search_path.append(current_state)#append
+        if now > stoptime:
+            return current_state
         if current_state.isFinal():
             return current_state
         if current_state.depth >n:
             result = None
-        now = time.time()
-        if now > stoptime:
-            return current_state
         else:
             if not is_cycle(current_state):
                 children = generateAllChildren(current_state)
@@ -318,15 +321,15 @@ def print_search_path():
 column =3
 rows = 3
 goal = [[1,2,3],[4,5,6],[7,8,9]]
-init = [[1,3,2], [5,8,6],[9,7,4]]
+init = [[1,3,2], [4,6,5],[7,9,8]]
 search_path = list() 
 
 #example inputs
 #[[2,3,5], [1,8,6],[9,7,4]]
 #[[1,3,2], [5,8,6],[9,7,4]]
 #[[2,3,5], [1,8,6],[9,7,4]]
-
-init = [[1,3,2], [4,6,5],[7,9,8]]
+#
+# init = [[1,2,3], [4,5,6],[7,9,8]]
 
 if __name__ == '__main__':
 
@@ -343,8 +346,8 @@ if __name__ == '__main__':
     open_list.append(s)
 
     timeout = time.time() + 3
-
-    ret = iterative_deepening_search()
+    ret = depthFirst()
+    # ret = iterative_deepening_search()
     end = timer()
     print(ret)
     printHistory(ret)
@@ -352,8 +355,9 @@ if __name__ == '__main__':
 
     #depthFirst()
     #ret = iterative_deepening_search()
-    end = timer()
-    print(ret)
-    printHistory(ret)
+    # end = timer()
+    # print(ret)
+    # printHistory(ret)
     #print_search_path()#seach
-  
+    
+
