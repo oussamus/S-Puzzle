@@ -3,6 +3,8 @@ import random
 from collections import deque
 from timeit import default_timer as timer
 from multiprocessing import Process
+import time
+import threading
 
 def itterativeDeepening():
     global open_list
@@ -12,7 +14,7 @@ def itterativeDeepening():
     loop_again = True
     original_open_list = copy.deepcopy(open_list)
 
-
+    
     while loop_again:
 
         open_list = copy.deepcopy(original_open_list)
@@ -20,10 +22,11 @@ def itterativeDeepening():
 
         loop_again = False
 
+        
         while len(open_list) > 0 :
 
             current_state = open_list.pop()
-
+            
             #if the depth of the node > the maximum allowed depth for this iteration, check the next state in the open list
             if current_state.depth > depth_level:
                 loop_again = True
@@ -88,6 +91,7 @@ def depthFirst():
 
                 children = generateAllChildren(current_state)
                 open_list.extend(children)
+                
 
         #if there are no child states in the current state
         else:
@@ -240,7 +244,7 @@ class State(object):
         else:
             return False
 
-def printHistory(state):
+def printHistory(state):#solution path
     nodes = list()
 
     #adding current node to the list
@@ -270,18 +274,29 @@ def is_cycle(state):
     return False
 
 def iterative_deepening_search():
+    
     start_time = timer()
     depth = 1
     global open_list
     original_open_list = copy.deepcopy(open_list)
-
+    timeout = time.time() + 5
     while depth < 100:
         print("depth level: " + str(depth) + "time: " + str(timer() - start_time))
         open_list = copy.deepcopy(original_open_list)
         result = depth_limited_search(depth)
+        # printHistory(result)
         if result:
+            printHistory(result)
             return result
         depth +=1
+        
+        # print("now: " + str(time.time()))
+        # print("out: " + str(timeout))
+        if time.time() > timeout:
+            printHistory(result)
+            # yyy = time.time()
+            print("overtime")
+            return result
     return None
 
 def depth_limited_search(n):
@@ -290,7 +305,7 @@ def depth_limited_search(n):
     result =None
     while len(open_list) >0:
         current_state = open_list.pop()
-        search_path.append(current_state)
+        search_path.append(current_state)#append
         if current_state.isFinal():
             return current_state
         if current_state.depth >n:
@@ -313,14 +328,14 @@ column =3
 rows = 3
 goal = [[1,2,3],[4,5,6],[7,8,9]]
 init = [[1,3,2], [5,8,6],[9,7,4]]
-search_path = list()
+search_path = list() 
 
 #example inputs
 #[[2,3,5], [1,8,6],[9,7,4]]
 #[[1,3,2], [5,8,6],[9,7,4]]
 #[[2,3,5], [1,8,6],[9,7,4]]
 
-#init = [[1,3,2],[4,5,6],[7,8,9]]
+init = [[2,3,5], [1,8,6],[9,7,4]]
 
 if __name__ == '__main__':
 
@@ -336,11 +351,22 @@ if __name__ == '__main__':
     #adding the inital state to the open list
     open_list.append(s)
 
+    timeout = time.time() + 3
+    
+    # while True:
+    #     ret = iterative_deepening_search()
+    #     end = timer()
+    #     print(ret)
+    #     printHistory(ret)
+    #     if time.time() > timeout:
+    #         print("overtime")
+    #         break
+
     #depthFirst()
-    ret = depthFirst()
+    ret = iterative_deepening_search()
     end = timer()
     print(ret)
-    #print_search_path()
-    #printHistory(ret)
-
+    #printHistory(ret)#solution path
+    #print_search_path()#seach
+    
 
