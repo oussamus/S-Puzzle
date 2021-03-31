@@ -1,10 +1,12 @@
 import copy
+import time as time
 childrenProcess = []
 class Node:
     def __init__(self, data, level, fval):
         self.data = data
         self.level = level
         self.fval = fval
+        self.parent = None
 
 
     def generate_possible_children(self):
@@ -30,7 +32,9 @@ class Node:
         self.moveLeft(children, puz, col, row)
         self.moveUp(children, puz, col, row)
         self.moveDown(children, puz, col, row)
-        
+        #for i in range(len(children)):
+        #    print(children[i].data, children[i].parent)
+        #x = input()
 
     def moveRight( self, children, puz, col, row):
         if (row <= (rows - 2)):
@@ -41,6 +45,7 @@ class Node:
             puz_[col][row + 1] = temp
             if(len(childrenProcess) == 0):
                 child_node = Node(puz_, self.level + 1, 0)
+                child_node.parent = self
                 children.append(child_node)
                 #print("First Right added")
                 return
@@ -51,7 +56,10 @@ class Node:
                         break
                 if(addingNode):
                     child_node = Node(puz_, self.level + 1, 0)
-                    children.append(child_node)   
+                    child_node.parent = self
+                    children.append(child_node)
+                #    print(" chikkkkkk ",child_node.parent.data)
+                
 
     def moveLeft( self, children, puz, col, row):
         if (row > 0):
@@ -61,12 +69,14 @@ class Node:
             puz_[col][row] = puz_[col][row - 1]
             puz_[col][row - 1] = temp 
             for j in range(len(childrenProcess)):
-                if( puz_ != childrenProcess[j].data or len(childrenProcess) == 0):
+                if( puz_ != childrenProcess[j].data):
                     addingNode = True
                     break
             if(addingNode):
                 child_node = Node(puz_, self.level + 1, 0)
+                child_node.parent = self
                 children.append(child_node)
+                
 
         
         
@@ -80,12 +90,14 @@ class Node:
             puz_[col - 1][row] = temp 
             #print("Up ",puz_)
             for j in range(len(childrenProcess)):
-                if( puz_ != childrenProcess[j].data or len(childrenProcess) == 0):
+                if( puz_ != childrenProcess[j].data):
                     addingNode = True
                     break
             if(addingNode):
                 child_node = Node(puz_, self.level + 1, 0)
+                child_node.parent = self
                 children.append(child_node)
+                self.parent = self
 
         
 
@@ -98,12 +110,14 @@ class Node:
             puz_[col + 1][row] = temp 
             #print("Down ",puz_)
             for j in range(len(childrenProcess)):
-                if( puz_ != childrenProcess[j].data or len(childrenProcess) == 0):
+                if( puz_ != childrenProcess[j].data):
                     addingNode = True
                     break
             if(addingNode):
                 child_node = Node(puz_, self.level + 1, 0)
+                child_node.parent = self
                 children.append(child_node)
+                self.parent = self
 
 
 
@@ -128,6 +142,11 @@ class Puzzle:
         returnVal += start.level
         return returnVal
 
+    def f2(self, start, goal):
+        returnVal = self.h2(start.data) 
+        returnVal += start.level
+        return returnVal
+
     def h(self, start, goal): # The basic heuristic funtion 
         temp = 0
         for i in range(0,self.n):
@@ -143,11 +162,11 @@ class Puzzle:
         for i in range(self.n):
             for j in range(self.n):
                 if start[i][j] != goal[i][j]:
-                    (real_row,real_col) = find(goal,row,col,start[i][j])
-                    distance += abs(real_col - j) + abs(real_row -i)
+                    (real_row,real_col) = find(goal, rows, columns, start[i][j])
+                    distance += abs(real_col - j) + abs(real_row - i)
         return distance
 
-        
+
 
     def process(self):
         global init
@@ -176,7 +195,11 @@ class Puzzle:
             self.open.remove(self.open[0])
             # We sort the open list according the f value 
             self.open.sort(key = lambda x:x.fval)
+            #for i in range(len(self.open)):
+             #   print(self.open[i].data)
+            #x = input()
         
+
 
 
 #init = [[1,2,3,4],[5,6,7,8],[14,10,11,12],[13,9,15,16]]
@@ -186,6 +209,8 @@ goal = [[1,2,3],[4,5,6],[7,8,9]]
 columns = len(init)
 rows = len(init[0])
 
-
+starTime = time.time()
 puz = Puzzle(columns)
 puz.process()
+endTime = time.time()
+print(endTime - starTime)
