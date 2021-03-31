@@ -4,7 +4,6 @@ from collections import deque
 from timeit import default_timer as timer
 from multiprocessing import Process
 import time
-import threading
 
 def itterativeDeepening():
     global open_list
@@ -14,7 +13,7 @@ def itterativeDeepening():
     loop_again = True
     original_open_list = copy.deepcopy(open_list)
 
-    
+
     while loop_again:
 
         open_list = copy.deepcopy(original_open_list)
@@ -22,11 +21,10 @@ def itterativeDeepening():
 
         loop_again = False
 
-        
         while len(open_list) > 0 :
 
             current_state = open_list.pop()
-            
+
             #if the depth of the node > the maximum allowed depth for this iteration, check the next state in the open list
             if current_state.depth > depth_level:
                 loop_again = True
@@ -274,35 +272,25 @@ def is_cycle(state):
     return False
 
 def iterative_deepening_search():
-    
     start_time = timer()
     depth = 1
     global open_list
     original_open_list = copy.deepcopy(open_list)
-    timeout = time.time() + 5
+
     while depth < 100:
         print("depth level: " + str(depth) + "time: " + str(timer() - start_time))
         open_list = copy.deepcopy(original_open_list)
         result = depth_limited_search(depth)
-        # printHistory(result)
         if result:
-            printHistory(result)
             return result
         depth +=1
-        
-        # print("now: " + str(time.time()))
-        # print("out: " + str(timeout))
-        if time.time() > timeout:
-            printHistory(result)
-            # yyy = time.time()
-            print("overtime")
-            return result
     return None
 
 def depth_limited_search(n):
     global search_path
     global open_list
     result =None
+    stoptime = time.time() + 60
     while len(open_list) >0:
         current_state = open_list.pop()
         search_path.append(current_state)#append
@@ -310,6 +298,9 @@ def depth_limited_search(n):
             return current_state
         if current_state.depth >n:
             result = None
+        now = time.time()
+        if now > stoptime:
+            return current_state
         else:
             if not is_cycle(current_state):
                 children = generateAllChildren(current_state)
@@ -335,7 +326,7 @@ search_path = list()
 #[[1,3,2], [5,8,6],[9,7,4]]
 #[[2,3,5], [1,8,6],[9,7,4]]
 
-init = [[2,3,5], [1,8,6],[9,7,4]]
+init = [[1,3,2], [4,6,5],[7,9,8]]
 
 if __name__ == '__main__':
 
@@ -352,21 +343,17 @@ if __name__ == '__main__':
     open_list.append(s)
 
     timeout = time.time() + 3
-    
-    # while True:
-    #     ret = iterative_deepening_search()
-    #     end = timer()
-    #     print(ret)
-    #     printHistory(ret)
-    #     if time.time() > timeout:
-    #         print("overtime")
-    #         break
 
-    #depthFirst()
     ret = iterative_deepening_search()
     end = timer()
     print(ret)
-    #printHistory(ret)#solution path
-    #print_search_path()#seach
-    
+    printHistory(ret)
 
+
+    #depthFirst()
+    #ret = iterative_deepening_search()
+    end = timer()
+    print(ret)
+    printHistory(ret)
+    #print_search_path()#seach
+  
