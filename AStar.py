@@ -97,7 +97,7 @@ class Node:
                 child_node = Node(puz_, self.level + 1, 0)
                 child_node.parent = self
                 children.append(child_node)
-                self.parent = self
+                #self.parent = self
 
         
 
@@ -117,7 +117,7 @@ class Node:
                 child_node = Node(puz_, self.level + 1, 0)
                 child_node.parent = self
                 children.append(child_node)
-                self.parent = self
+                #self.parent = self
 
 
 
@@ -184,6 +184,7 @@ class Puzzle:
                 print("{: >3} {: >3} {: >3}".format(*row))
             # The loop breaks when the heuristic function returns 0. The goal is found
             if self.h(cur.data, goal) == 0:
+                return cur
                 break
 
             for i in cur.generate_possible_children():
@@ -217,6 +218,7 @@ class Puzzle:
                 print("{: >3} {: >3} {: >3}".format(*row))
             # The loop breaks when the heuristic function returns 0. The goal is found
             if self.h2(cur.data) == 0:
+                return cur
                 break
 
             for i in cur.generate_possible_children():
@@ -233,7 +235,26 @@ class Puzzle:
             #for i in range(len(self.open)):
              #   print(self.open[i].data)
             #x = input()
-        
+def printNode(node):
+    out = ""
+    for i in range(rows):
+        out += "\n" + str(node.data[i])
+    return out
+
+def getSolutionPath(node):
+    ls1 = list()
+    parent = node.parent
+    ls1.append(node)
+    out = ""
+
+    while parent:
+        ls1.append(parent)
+        parent = parent.parent
+
+    for n in reversed(ls1):
+        out += "\n" + printNode(n)
+
+    return out
 
 
 
@@ -246,6 +267,7 @@ rows = len(init[0])
 
 starTime = time.time()
 puz = Puzzle(columns)
-puz.A2()
-endTime = time.time()
+ret = puz.A2()
+endTime = time.time() + 60
 print(endTime - starTime)
+print(getSolutionPath(ret))
