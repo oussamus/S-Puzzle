@@ -1,0 +1,18 @@
+Contributors：
+
+
+team24
+Haocheng Yang      40031815
+Daniel Fakhr           40041949
+Oussama Zouhadi   26453392
+
+
+Goals:
+Implement a solution for the S-Puzzle board using the following 3 search algorithms:
+1. depth-first.
+2. iterative-deepening.
+3. Algorithm A*.
+to complete S-puzzles
+
+The first file called assignment2 containing the depth-first and iterative-deepening algorithmes, Make sure you comment out one of the function at the end to run the code.
+The second is for the algorithm A, you can just put value in the init to run the code.
