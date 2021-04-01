@@ -171,7 +171,7 @@ class Puzzle:
     def process(self):
         global init
         global goal
-        stoptime = time.time() + 5
+        stoptime = time.time() + 60
         start = Node(init, 0, 0)
         start.fval = self.f(start, goal)
         self.open.append(start)
@@ -186,7 +186,7 @@ class Puzzle:
                 break
             if self.h(cur.data, goal) == 0:
                 break
-
+            
             for i in cur.generate_possible_children():
                 i.fval = self.f(i,goal)
                 if i.fval == 0: 
@@ -201,7 +201,63 @@ class Puzzle:
             #for i in range(len(self.open)):
              #   print(self.open[i].data)
             #x = input()
-        
+
+    def A2(self):
+        self.open.clear()
+        self.closed.clear()
+        global init
+        global goal
+        stoptime = time.time() + 60
+        start = Node(init, 0, 0)
+        start.fval = self.f2(start, goal)
+        self.open.append(start)
+        while True:
+            cur = self.open[0]
+            # Printing the current puzzle nicely
+            print("\n")
+            for row in cur.data:
+                print("{: >3} {: >3} {: >3}".format(*row))
+            if time.time() > stoptime:
+                break    
+            # The loop breaks when the heuristic function returns 0. The goal is found
+            if self.h2(cur.data) == 0:
+                return cur
+                break
+
+            for i in cur.generate_possible_children():
+                i.fval = self.f2(i,goal)
+                if i.fval == 0: 
+                    return i
+                # To check later on (in possible_moves function ) if we have duplicate nodes
+                childrenProcess.append(i) 
+                self.open.append(i)
+            self.closed.append(cur)
+            self.open.remove(self.open[0])
+            # We sort the open list according the f value 
+            self.open.sort(key = lambda x:x.fval)
+            #for i in range(len(self.open)):
+             #   print(self.open[i].data)
+            #x = input()
+def printNode(node):
+    out = ""
+    for i in range(rows):
+        out += "\n" + str(node.data[i])
+    return out
+
+def getSolutionPath(node):
+    ls1 = list()
+    parent = node.parent
+    ls1.append(node)
+    out = ""
+
+    while parent:
+        ls1.append(parent)
+        parent = parent.parent
+
+    for n in reversed(ls1):
+        out += "\n" + printNode(n)
+
+    return out
 
 
 
