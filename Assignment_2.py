@@ -176,7 +176,7 @@ class State(object):
         for row in self.Data:
             out += "\n"+ str(row)
         out +=  "\nDepth level: " + str(self.depth)
-        print(out)
+        return out
 
     def moveLeft(self,row, col):
         if (col % column) > 0:
@@ -294,7 +294,7 @@ def depth_limited_search(n):
     global search_path
     global open_list
     result =None
-    stoptime = time.time() + 8
+    stoptime = time.time() + 60
     while len(open_list) >0:
         now = time.time()
         current_state = open_list.pop()
@@ -311,12 +311,21 @@ def depth_limited_search(n):
                 open_list.extend(children)
     return result
 
-def print_search_path():
+def print_search_pathdf():
     sPthat = search_path
-
+    file = open("df.txt", 'w')
     for state in sPthat:
-        state.printData()
+        file.write(state.printData())
         print("\n")
+    file.close
+
+def print_search_pathid():
+    sPthat = search_path
+    file = open("id.txt", 'w')
+    for state in sPthat:
+        file.write(state.printData())
+        print("\n")
+    file.close
 
 
 column =3
@@ -356,7 +365,7 @@ if __name__ == '__main__':
     else:
         
         print("overtime")
-    #print_search_path()#seach
+    print_search_pathid()#seach
 
 
 #####depthfirst
@@ -367,6 +376,6 @@ if __name__ == '__main__':
     #     printHistory(ret)
     # else:
     #     print("overtime")
-    # #print_search_path()#seach
+    #print_search_pathdf()#seach
     
 
