@@ -168,7 +168,9 @@ class Puzzle:
 
 
 
-    def process(self):
+    def A1(self):
+        self.open.clear()
+        self.closed.clear()
         global init
         global goal
         start = Node(init, 0, 0)
@@ -198,19 +200,52 @@ class Puzzle:
             #for i in range(len(self.open)):
              #   print(self.open[i].data)
             #x = input()
+
+    def A2(self):
+        self.open.clear()
+        self.closed.clear()
+        global init
+        global goal
+        start = Node(init, 0, 0)
+        start.fval = self.f2(start, goal)
+        self.open.append(start)
+        while True:
+            cur = self.open[0]
+            # Printing the current puzzle nicely
+            print("\n")
+            for row in cur.data:
+                print("{: >3} {: >3} {: >3}".format(*row))
+            # The loop breaks when the heuristic function returns 0. The goal is found
+            if self.h2(cur.data) == 0:
+                break
+
+            for i in cur.generate_possible_children():
+                i.fval = self.f2(i,goal)
+                if i.fval == 0: 
+                    return i
+                # To check later on (in possible_moves function ) if we have duplicate nodes
+                childrenProcess.append(i) 
+                self.open.append(i)
+            self.closed.append(cur)
+            self.open.remove(self.open[0])
+            # We sort the open list according the f value 
+            self.open.sort(key = lambda x:x.fval)
+            #for i in range(len(self.open)):
+             #   print(self.open[i].data)
+            #x = input()
         
 
 
 
 #init = [[1,2,3,4],[5,6,7,8],[14,10,11,12],[13,9,15,16]]
 #goal = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]]
-init = [[1,2,3],[4,5,6],[9,8,7]]
+init = [[2,3,5], [1,8,6],[9,7,4]]
 goal = [[1,2,3],[4,5,6],[7,8,9]]
 columns = len(init)
 rows = len(init[0])
 
 starTime = time.time()
 puz = Puzzle(columns)
-puz.process()
+puz.A2()
 endTime = time.time()
 print(endTime - starTime)
