@@ -63,7 +63,7 @@ def depthFirst():
     global closed_list
     # generate the child state
     #child_state = generateChild(current_node.data)
-    stoptime = time.time() + 5
+    stoptime = time.time() + 60
     counter =0
     while len(open_list) > 0:
 
@@ -84,6 +84,7 @@ def depthFirst():
             now = time.time()
             if now > stoptime:
                 return current_state
+                
             #check if it is the final state
             if current_state.isFinal():
                 return current_state
@@ -293,7 +294,7 @@ def depth_limited_search(n):
     global search_path
     global open_list
     result =None
-    stoptime = time.time() + 60 * 6
+    stoptime = time.time() + 8
     while len(open_list) >0:
         now = time.time()
         current_state = open_list.pop()
@@ -329,7 +330,7 @@ search_path = list()
 #[[1,3,2], [5,8,6],[9,7,4]]
 #[[2,3,5], [1,8,6],[9,7,4]]
 #
-# init = [[1,2,3], [4,5,6],[7,9,8]]
+init = [[2,3,5], [1,8,6],[9,7,4]]
 
 if __name__ == '__main__':
 
@@ -345,19 +346,27 @@ if __name__ == '__main__':
     #adding the inital state to the open list
     open_list.append(s)
 
-    timeout = time.time() + 3
-    ret = depthFirst()
-    # ret = iterative_deepening_search()
+
+    #####iterative_deepening
+    ret = iterative_deepening_search()
     end = timer()
-    print(ret)
-    printHistory(ret)
 
-
-    #depthFirst()
-    #ret = iterative_deepening_search()
-    # end = timer()
-    # print(ret)
-    # printHistory(ret)
+    if ret.Data == goal:
+        printHistory(ret)
+    else:
+        
+        print("overtime")
     #print_search_path()#seach
+
+
+#####depthfirst
+    # ret = depthFirst()
+    # end = timer()
+
+    # if ret.Data == goal:
+    #     printHistory(ret)
+    # else:
+    #     print("overtime")
+    # #print_search_path()#seach
     
 
