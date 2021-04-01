@@ -173,6 +173,7 @@ class Puzzle:
         self.closed.clear()
         global init
         global goal
+        stoptime = time.time() + 60
         start = Node(init, 0, 0)
         start.fval = self.f(start, goal)
         self.open.append(start)
@@ -183,6 +184,8 @@ class Puzzle:
             for row in cur.data:
                 print("{: >3} {: >3} {: >3}".format(*row))
             # The loop breaks when the heuristic function returns 0. The goal is found
+            if time.time() > stoptime:
+                break
             if self.h(cur.data, goal) == 0:
                 return cur
                 break
@@ -207,6 +210,7 @@ class Puzzle:
         self.closed.clear()
         global init
         global goal
+        stoptime = time.time() + 60
         start = Node(init, 0, 0)
         start.fval = self.f2(start, goal)
         self.open.append(start)
@@ -217,6 +221,8 @@ class Puzzle:
             for row in cur.data:
                 print("{: >3} {: >3} {: >3}".format(*row))
             # The loop breaks when the heuristic function returns 0. The goal is found
+            if time.time() > stoptime:
+                break
             if self.h2(cur.data) == 0:
                 return cur
                 break
@@ -235,6 +241,8 @@ class Puzzle:
             #for i in range(len(self.open)):
              #   print(self.open[i].data)
             #x = input()
+
+
 def printNode(node):
     out = ""
     for i in range(rows):
