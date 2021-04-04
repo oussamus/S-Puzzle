@@ -263,7 +263,8 @@ def printHistory(state):#solution path
     #printing all the ancestors
     for state in list(reversed(nodes)):
         print("\n")
-        state.printData()
+        print(state.printData())
+        
 
 def is_cycle(state):
     '''Checks if the state has the same representation in its line of parents'''
