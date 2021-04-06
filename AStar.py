@@ -58,7 +58,6 @@ class Node:
                     child_node = Node(puz_, self.level + 1, 0)
                     child_node.parent = self
                     children.append(child_node)
-                #    print(" chikkkkkk ",child_node.parent.data)
                 
 
     def moveLeft( self, children, puz, col, row):
@@ -168,28 +167,33 @@ class Puzzle:
 
 
 
-    def A1(self):
-        self.open.clear()
-        self.closed.clear()
+    def process(self):
         global init
         global goal
         stoptime = time.time() + 60
         start = Node(init, 0, 0)
         start.fval = self.f(start, goal)
         self.open.append(start)
+        file = open("Search_path_h1.txt", 'w')
         while True:
             cur = self.open[0]
             # Printing the current puzzle nicely
-            print("\n")
+    
             for row in cur.data:
-                print("{: >3} {: >3} {: >3}".format(*row))
+                file.write("{: >3} {: >3} {: >3}".format(*row))
+                file.write("\n")
+            file.write("level: "+ str(cur.level)+"\n\n")  
             # The loop breaks when the heuristic function returns 0. The goal is found
             if time.time() > stoptime:
+                print("No solution")
                 break
             if self.h(cur.data, goal) == 0:
-                return cur
+                file = open("Solution_path_h1.txt", 'w')
+                getSolutionPath(cur, file)
+                file.close
+                print("Heuristic 1 Search path: ", len(self.closed))
                 break
-
+            
             for i in cur.generate_possible_children():
                 i.fval = self.f(i,goal)
                 if i.fval == 0: 
@@ -201,9 +205,7 @@ class Puzzle:
             self.open.remove(self.open[0])
             # We sort the open list according the f value 
             self.open.sort(key = lambda x:x.fval)
-            #for i in range(len(self.open)):
-             #   print(self.open[i].data)
-            #x = input()
+            file.close
 
     def A2(self):
         self.open.clear()
@@ -214,19 +216,24 @@ class Puzzle:
         start = Node(init, 0, 0)
         start.fval = self.f2(start, goal)
         self.open.append(start)
+        file = open("Search_path_h2.txt", 'w')
         while True:
             cur = self.open[0]
             # Printing the current puzzle nicely
-            print("\n")
             for row in cur.data:
-                print("{: >3} {: >3} {: >3}".format(*row))
-            # The loop breaks when the heuristic function returns 0. The goal is found
+                file.write("{: >3} {: >3} {: >3}".format(*row))
+                file.write("\n")
+            file.write("level: "+ str(cur.level)+"\n\n") 
             if time.time() > stoptime:
-                break
+                break    
+            # The loop breaks when the heuristic function returns 0. The goal is found
             if self.h2(cur.data) == 0:
+                file = open("Solution_path_h2.txt", 'w')
+                getSolutionPath(cur, file) 
+                file.close
+                print("Heuristic 2 Search path: ", len(self.closed))
                 return cur
                 break
-
             for i in cur.generate_possible_children():
                 i.fval = self.f2(i,goal)
                 if i.fval == 0: 
@@ -238,44 +245,54 @@ class Puzzle:
             self.open.remove(self.open[0])
             # We sort the open list according the f value 
             self.open.sort(key = lambda x:x.fval)
-            #for i in range(len(self.open)):
-             #   print(self.open[i].data)
-            #x = input()
-
-
-def printNode(node):
-    out = ""
+        
+           
+def printNode(node, file):
     for i in range(rows):
-        out += "\n" + str(node.data[i])
-    return out
+        file.write(str(node.data[i]) + "\n")
+    return
 
-def getSolutionPath(node):
+def getSolutionPath(node, file):
+    global puzzleNumber 
+    puzzleNumber = 0
     ls1 = list()
     parent = node.parent
     ls1.append(node)
-    out = ""
-
     while parent:
         ls1.append(parent)
         parent = parent.parent
-
     for n in reversed(ls1):
-        out += "\n" + printNode(n)
+        printNode(n, file)
+        puzzleNumber += 1
+        file.write(str(puzzleNumber) + "\n")   
+    file.close
+    return
 
-    return out
+def print_search_pathA1():
+    sPthat = search_path
+    file = open("Search_path_h1.txt", 'w')
+    for state in sPthat:
+        file.write(state.printData())
+    file.close
 
 
 
 #init = [[1,2,3,4],[5,6,7,8],[14,10,11,12],[13,9,15,16]]
 #goal = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]]
-init = [[2,3,5], [1,8,6],[9,7,4]]
+init = [[1,2,3],[7,5,6],[4,8,9]]
 goal = [[1,2,3],[4,5,6],[7,8,9]]
 columns = len(init)
 rows = len(init[0])
 
-starTime = time.time()
 puz = Puzzle(columns)
-ret = puz.A2()
-endTime = time.time() + 60
-print(endTime - starTime)
-print(getSolutionPath(ret))
+starTime = time.time()
+puz.process()
+endTime = time.time()
+print("Heuristic 1 Execution Time: ",endTime - starTime)
+print("Heuristic 1 Solution path: ", puzzleNumber)
+
+starTime = time.time()
+puz.A2()
+endTime = time.time()
+print("Heuristic 2 Execution Time: ",endTime - starTime)
+print("Heuristic 2 Solution path: ", puzzleNumber)
