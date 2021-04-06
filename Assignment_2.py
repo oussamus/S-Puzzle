@@ -1,117 +1,393 @@
-#import numpy as np
-import math
+import copy
 import random
+from collections import deque
+from timeit import default_timer as timer
+from multiprocessing import Process
+import time
+
+def itterativeDeepening():
+    global open_list
+    global closed_list
+    depth_level =1
+    done = None
+    loop_again = True
+    original_open_list = copy.deepcopy(open_list)
 
 
-column = 3
-initialState_ = ((9,8,7),(6,5,4),(3,2,1))
-goalState = (1,2,3,4,5,6,7,8,9)
+    while loop_again:
 
-def toBigTuple(tup):
-    bigTuple = []
-    for x in range(3):
-        for y in range(3):
-            bigTuple.append(tup[x][y])
-    return tuple(bigTuple) 
+        open_list = copy.deepcopy(original_open_list)
+        closed_list.clear()
 
-def movingRight(tup, i):
-    if (i % column ) < (column - 1 ):     
-        possibleMove = list(tup) 
-        temp = possibleMove[i + 1] # for swapping positions
-        possibleMove[i + 1] = possibleMove[i]
-        possibleMove[i] = temp
-        tup = tuple(possibleMove)
-    else:
-        print("No Move\n")
-    printTuple(tup)
+        loop_again = False
 
-def movingLeft(tup, i):
-    if (i % column ) > 0:
-        possibleMove = list(tup)
-        temp = possibleMove[i - 1] # for swapping positions
-        possibleMove[i -1] = possibleMove[i]
-        possibleMove[i] = temp
-        tup = tuple(possibleMove)
-    else:
-        print("No Move\n")
-    printTuple(tup)
+        while len(open_list) > 0 :
 
-def movingUp(tup, i):
-    if (i - column ) >= 0:
-        possibleMove = list(tup)
-        temp = possibleMove[i - 3] # for swapping positions
-        possibleMove[i - 3] = possibleMove[i]
-        possibleMove[i] = temp
-        tup = tuple(possibleMove)
-    else:
-        print("No Move\n")
-    printTuple(tup)
+            current_state = open_list.pop()
 
-def movingDown(tup, i):
-    if (i + column ) < len(tup):
-        possibleMove = list(tup)
-        temp = possibleMove[i + 3] # for swapping positions
-        possibleMove[i + 3] = possibleMove[i]
-        possibleMove[i] = temp
-        tup = tuple(possibleMove)
-    else:
-        print("No Move\n")
-    printTuple(tup)
+            #if the depth of the node > the maximum allowed depth for this iteration, check the next state in the open list
+            if current_state.depth > depth_level:
+                loop_again = True
+                continue
 
-def copyPuzzle(arr_1, arr_2):
-    arr_2 = np.empty_like(arr_1)
-    arr_2[:] = arr_1
-    return arr_2
+            #this goes down
+            closed_list.append(current_state)
 
-def copyTuple(tup_1, tup_2):
-    tup_2 = deepcopy(tup_1)    
+            # checking if the current state is a final state
+            if current_state.isFinal():
+                done = current_state
+                break
 
-def printingArray(arr_):
-    printArr =  arr_.reshape(3,3)
-    print(printArr)
+            #generating all the children of the state
+            children = generateAllChildren(current_state)
 
-def printTuple(tup):
-    print(tup[0], tup[1], tup[2])
-    print(tup[3], tup[4], tup[5])
-    print(tup[6], tup[7], tup[8],"\n") 
+            #setting the children attibute of the node = to the generated list of children
+            current_state.children = children
 
-def goalReached(arr_):
-    goal = True
-    firstValue = arr_[0]
-    for x in arr_:
-        if firstValue > x:
-            goal = False
-            break
-    return goal        
+            #adding the list of children to the open list
+            open_list.extend(children)
+
+        if done:
+          return done
+
+        depth_level +=1
+        print(str(depth_level))
+    return None
+
+
+
+def depthFirst():
+    '''Not Complete'''
+    #current_node = Tree
+    global open_list
+    global closed_list
+    # generate the child state
+    #child_state = generateChild(current_node.data)
+    stoptime = time.time() + 333
+    counter =0
+    while len(open_list) > 0:
+
+        if counter == 100:
+            counter =0
+            print("open list: " + str(len(open_list)) + "\nclose list: "+ str(len(closed_list)))
+        counter += 1
+        current_state = open_list.pop()
+        #closed_list.append(current_state)
+
+        if is_cycle(current_state):
+            continue
+
+        #print(len(open_list))
+        #if current state is not null (i.e if a child exists
+        if current_state:
+
+            now = time.time()
+            if now > stoptime:
+                return current_state
+                
+            #check if it is the final state
+            if current_state.isFinal():
+                return current_state
+            #if not, creat anew  tree node, fit the child state into it, set all the variables for the node, and set current node to that node
+            else:
+
+                children = generateAllChildren(current_state)
+                open_list.extend(children)
+                
+
+        #if there are no child states in the current state
+        else:
+            '''
+            #add the current state into the closed list
+            closed_list.append(current_state)
+            current_node = current_node.parent
+            print("no")
+            '''
+def difference(child_list, open_list, closed_list):
+    returning_list = list()
+    for state in child_list:
+        if state in open_list or state in returning_list:
+            continue
+        else:
+            returning_list.append(state)
+    return returning_list
+
+
+
+def generateAllChildren(state):
+    returning = list()
+    global open_list
+    global closed_list
+    # iterating through all the possible moveUp actions
+    for i in list(range(0, rows)):
+        for j in list(range(0, column)):
+            out = state.moveUp(i, j)
+
+            if not out: continue
+
+
+            returning.append(out)
+
+    # iterating through all the possible moveDown actions
+    for i in list(range(0, rows)):
+        for j in list(range(0, column)):
+            out = state.moveDown(i, j)
+
+            if not out: continue
+
+            returning.append(out)
+    # iterating through all the possible moveRight actions
+    for i in list(range(0, rows)):
+        for j in list(range(0, column)):
+            out = state.moveRight(i, j)
+
+            if not out: continue
+
+
+            returning.append(out)
+    # iterating through all the possible moveLeft actions
+    for i in list(range(0, rows)):
+        for j in list(range(0, column)):
+            out = state.moveLeft(i, j)
+
+            if not out: continue
+
+            returning.append(out)
+
+    filtered_list = difference(returning,open_list,closed_list)
+    #random.shuffle(filtered_list)
+    return filtered_list
+
+
+class State(object):
+    '''State that represents the puzzle. It contains the tuple/array (array for now) and a list of changes applied to it'''
+
+    def __init__(self, Data, log,parent,children, depth ):
+        self.Data = Data
+        self.log = log
+        self.parent = parent
+        self.children = children
+        self.depth = depth
+
+    def addLog(self, log):
+        self.log.append(log)
+    def printData(self):
+        out = ""
+        for row in self.Data:
+            out += "\n"+ str(row)
+        out +=  "\nDepth level: " + str(self.depth)
+        return out
+
+    def moveLeft(self,row, col):
+        if (col % column) > 0:
+            new_state = State(copy.deepcopy(self.Data),copy.deepcopy(self.log),self, list(), copy.deepcopy(self.depth +1) ) #making a deep copy of the state
+            possibleMove = new_state.Data
+            temp = possibleMove[row][col -1]  # for swapping positions
+            possibleMove[row][col - 1] = possibleMove[row][col]
+            possibleMove[row][col] = temp
+            new_state.log.append((row, col, "left"))    #adding the chages to the log of the state (the slides said we should do so, we don't use them yet)
+            return new_state    #returns the new child state
+
+        else:
+            return None
+
+    def moveRight(self, row, col):
+        if (col % column) < (column - 1):
+            new_state = State(copy.deepcopy(self.Data),copy.deepcopy(self.log),self, list(), copy.deepcopy(self.depth +1) )
+            possibleMove = new_state.Data
+            temp = possibleMove[row][col + 1]  # for swapping positions
+            possibleMove[row][col + 1] = possibleMove[row][col]
+            possibleMove[row][col] = temp
+            new_state.log.append((row, col, "right"))
+            return new_state
+        else:
+            return None
+
+    def moveDown(self, row, col):
+        if row < rows -1:
+            new_state = State(copy.deepcopy(self.Data),copy.deepcopy(self.log),self, list(), copy.deepcopy(self.depth +1) )
+            possibleMove = new_state.Data
+            temp = possibleMove[row +1][col]  # for swapping positions
+            possibleMove[row +1][col] = possibleMove[row][col]
+            possibleMove[row][col] = temp
+            new_state.log.append((row, col, "down"))
+            return new_state
+        else:
+            return None
+
+    def moveUp(self, row, col):
+        if row > 0 and row <= rows :
+            new_state = State(copy.deepcopy(self.Data),copy.deepcopy(self.log),self, list(), copy.deepcopy(self.depth +1) )
+            possibleMove = new_state.Data
+            temp = possibleMove[row -1][col]  # for swapping positions
+            possibleMove[row -1][col] = possibleMove[row][col]
+            possibleMove[row][col] = temp
+            new_state.log.append((row, col, "up"))
+            return new_state
+        else:
+            return None
+
+    def __eq__(self, state2):
+        '''overwriting the equals method'''
+        if self.Data == state2.Data:
+            return True
+        else:
+            return False
+    def __str__(self):
+        out = ""
+        for row in self.Data:
+            out = out + str(row) +"\n"
+        return out
+
+    def isFinal(self):
+        global goal
+        if self.Data == goal:
+            return True
+        else:
+            return False
+
+def printHistory(state, file):#solution path
+    nodes = list()
+
+    #adding current node to the list
+    nodes.append(state)
+
+    #getting the parent of the node
+    parent = state.parent
+    sPthat = search_path
+    global solutionPath
+    solutionPath = 1
+    #adding all the ancestors of the state to the list
+    while parent:
+        nodes.append(parent)
+        parent = parent.parent
+        solutionPath += 1
     
+    #printing all the ancestors
+    file = open(file, 'w')
+    for state in list(reversed(nodes)):
+        #print("\n")
+        file.write(state.printData())
+    file.close
 
-def depthFirstSearch(arr_):
-    print("Dept First Search")
-    openStack = []
-    closed = []
-    
-class Node:
-    childrenList = []
+def is_cycle(state):
+    '''Checks if the state has the same representation in its line of parents'''
+    ancestor = state.parent
 
-class Assignment_2:
-    initialState = toBigTuple(initialState_)
-    printTuple(initialState)
-    option = input()
-    while option != '0':
-        if option == 'd':
-            opt = int(input())    
-            movingRight(initialState, opt)
-        if option == 'a':
-            opt = int(input())
-            movingLeft(initialState, opt)
-        if option == 'w':
-            opt = int(input())
-            movingUp(initialState, opt)
-        if option == 'z':
-            opt = int(input())
-            movingDown(initialState, opt)    
-        option = input()
+    while ancestor:
+        if state == ancestor:
+            return True
+        ancestor = ancestor.parent
+    return False
+
+def iterative_deepening_search():
+    start_time = timer()
+    depth = 1
+    global open_list
+    original_open_list = copy.deepcopy(open_list)
+
+    while depth < 100:
+        print("depth level: " + str(depth) + " time: " + str(timer() - start_time))
+        open_list = copy.deepcopy(original_open_list)
+        result = depth_limited_search(depth)
+        if result:
+            return result
+        depth +=1
+    return None
+
+def depth_limited_search(n):
+    global search_path
+    global open_list
+    result =None
+    stoptime = time.time() + 333
+    while len(open_list) >0:
+        now = time.time()
+        current_state = open_list.pop()
+        search_path.append(current_state)#append
+        if now > stoptime:
+            return current_state
+        if current_state.isFinal():
+            return current_state
+        if current_state.depth >n:
+            result = None
+        else:
+            if not is_cycle(current_state):
+                children = generateAllChildren(current_state)
+                open_list.extend(children)
+    return result
+
+def print_search_pathdf():
+    sPthat = search_path
+    file = open("Search_path_df.txt", 'w')
+    for state in sPthat:
+        file.write(state.printData())
+        #print("\n")
+    file.close
+
+
+def print_search_pathid():
+    sPthat = search_path
+    file = open("Search_path_id.txt", 'w')
+    for state in sPthat:
+        file.write(state.printData())
+        #print("\n")
+    file.close
 
 
 
-    
+goal = [[1,2,3],[4,5,6],[7,8,9]]
+init = [[1,2,9], [3,5,6],[8,7,4]]
+column = len(goal[0])
+rows = len(goal[0])
+search_path = list() 
+solutionPath = 0
+
+if __name__ == '__main__':
+
+
+
+    open_list = deque()
+    closed_list = list()
+
+    #starting intial state
+    s = State(init,list(),None, list(),1)
+    s.depth = 1
+    #adding the inital state to the open list
+    open_list.append(s)
+
+
+    #####iterative_deepening
+    starTime = time.time()
+    ret = iterative_deepening_search()
+    endTime = time.time()
+    end = timer()
+    output = "Solution_path_id.txt"
+    if ret.Data == goal:
+        printHistory(ret, output)
+        print("Iterative Deepening Execution Time: ",endTime - starTime)
+        print("Iterative Deepening Search path: ", len(search_path))
+        print("Iterative Deepening Solution path: ", solutionPath)
+    else:
+        print("No solution")
+        print("Iterative Deepening Execution Time: ",endTime - starTime)
+        print("Iterative Deepening Search path: ", len(search_path))
+        print("Iterative Deepening Solution path: ", solutionPath)
+    print_search_pathid()#seach
+    '''
+#####depthfirst
+    starTime = time.time()
+    ret = depthFirst()
+    endTime = time.time()
+    end = timer()
+
+    output = "Solution_path_df.txt"
+    if ret.Data == goal:
+        printHistory(ret, output)
+        print("Depth First Execution Time: ",endTime - starTime)
+        print("Depth First Search path: ", len(search_path))
+    else:
+        print("No solution")
+        print("Depth First Execution Time: ",endTime - starTime)
+        print("Depth First Search path: ", len(search_path))
+    print_search_pathdf()#seach
+    '''
