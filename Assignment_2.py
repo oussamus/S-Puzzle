@@ -63,7 +63,7 @@ def depthFirst():
     global closed_list
     # generate the child state
     #child_state = generateChild(current_node.data)
-    stoptime = time.time() + 333
+    stoptime = time.time() + 60
     counter =0
     while len(open_list) > 0:
 
@@ -334,9 +334,10 @@ def print_search_pathid():
     file.close
 
 
-
-goal = [[1,2,3],[4,5,6],[7,8,9]]
-init = [[1,2,9], [3,5,6],[8,7,4]]
+init = [[1,2,3,4],[5,6,7,8],[14,10,11,12],[13,9,15,16]]
+goal = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]]
+#goal = [[1,2,3],[4,5,6],[7,8,9]]
+#init = [[1,2,3],[4,6,5],[7,8,9]]
 column = len(goal[0])
 rows = len(goal[0])
 search_path = list() 
@@ -355,7 +356,7 @@ if __name__ == '__main__':
     #adding the inital state to the open list
     open_list.append(s)
 
-
+    
     #####iterative_deepening
     starTime = time.time()
     ret = iterative_deepening_search()
@@ -374,7 +375,7 @@ if __name__ == '__main__':
         print("Iterative Deepening Solution path: ", solutionPath)
     print_search_pathid()#seach
     '''
-#####depthfirst
+    #####depthfirst
     starTime = time.time()
     ret = depthFirst()
     endTime = time.time()
@@ -385,9 +386,11 @@ if __name__ == '__main__':
         printHistory(ret, output)
         print("Depth First Execution Time: ",endTime - starTime)
         print("Depth First Search path: ", len(search_path))
+        print("Depth First Solution path: ", solutionPath)
     else:
         print("No solution")
         print("Depth First Execution Time: ",endTime - starTime)
         print("Depth First Search path: ", len(search_path))
+        print("Depth First Solution path: ", solutionPath)
     print_search_pathdf()#seach
     '''
