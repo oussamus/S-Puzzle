@@ -72,6 +72,7 @@ def depthFirst():
             print("open list: " + str(len(open_list)) + "\nclose list: "+ str(len(closed_list)))
         counter += 1
         current_state = open_list.pop()
+        search_path.append(current_state)
         #closed_list.append(current_state)
 
         if is_cycle(current_state):
@@ -334,10 +335,10 @@ def print_search_pathid():
     file.close
 
 
-init = [[1,2,3,4],[5,6,7,8],[14,10,11,12],[13,9,15,16]]
-goal = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]]
-#goal = [[1,2,3],[4,5,6],[7,8,9]]
-#init = [[1,2,3],[4,6,5],[7,8,9]]
+#init = [[1,2,3,4],[5,6,7,8],[14,10,11,12],[13,9,15,16]]
+#goal = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]]
+goal = [[1,2,3],[4,5,6],[7,8,9]]
+init = [[1,2,3],[4,5,6],[9,8,7]]
 column = len(goal[0])
 rows = len(goal[0])
 search_path = list() 
@@ -359,7 +360,7 @@ if __name__ == '__main__':
     
     #####iterative_deepening
     starTime = time.time()
-    ret = iterative_deepening_search()
+    ret = depthFirst()
     endTime = time.time()
     end = timer()
     output = "Solution_path_id.txt"
@@ -373,7 +374,8 @@ if __name__ == '__main__':
         print("Iterative Deepening Execution Time: ",endTime - starTime)
         print("Iterative Deepening Search path: ", len(search_path))
         print("Iterative Deepening Solution path: ", solutionPath)
-    print_search_pathid()#seach
+    print_search_pathdf()#seach
+
     '''
     #####depthfirst
     starTime = time.time()
